@@ -1,0 +1,379 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../headers-parser-behavior/headers-parser-behavior.html">
+<link rel="import" href="../code-mirror/code-mirror.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../headers-parser-behavior/headers-parser-behavior.html">
+<link rel="import" href="../headers-form-editor/headers-form-editor.html">
+<link rel="import" href="../headers-editor-code-mirror/cm-modules-import.html">
+<link rel="import" href="../headers-support/headers-support.html">
+<link rel="import" href="../clipboard-copy/clipboard-copy.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<!-- CodeMirror autocomplete -->
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../headers-editor-code-mirror/cm-headers-styles.html">
+<!--
+`<headers-editor>` Headers editor for the HTTP request editor panel
+
+### Example
+```
+<headers-editor></headers-editor>
+```
+
+### Styling
+`<headers-editor>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--headers-editor` | Mixin applied to the element | `{}`
+
+@group UI Elements
+@element headers-editor
+@demo demo/index.html
+-->
+<dom-module id="headers-editor">
+  <template>
+    <style>
+     :host {
+      display: block;
+      position: relative;
+
+      @apply(--headers-editor);
+
+      --code-mirror-editor: {
+        z-index: 0;
+      };
+
+      --paper-autocomplete: {
+        top: 32px;
+      };
+    }
+
+    .CodeMirror-hints {
+      position: absolute;
+      z-index: 10;
+      background: white;
+      overflow: hidden;
+      overflow-y: auto;
+      max-height: 20em;
+      margin-left: 20px;
+    }
+
+    .editor-actions {
+      padding: 0 8px;
+      @apply(--body-editor-actions-container);
+    }
+
+    #copyContainer {
+      margin: 0;
+      padding: 0;
+    }
+
+    paper-icon-button[active] {
+      background-color: var(--body-editor-panel-button-active, #e0e0e0);
+      border-radius: 50%;
+      @apply(--body-editor-panel-button);
+    }
+    </style>
+    <div class="content">
+      <div class="editor-actions">
+        <paper-icon-button icon="arc:content-copy" id="copyButton" on-tap="_copyToClipboard"></paper-icon-button>
+        <paper-icon-button icon="arc:code" id="editMode" toggles active="{{sourceMode}}"></paper-icon-button>
+        <paper-icon-button icon="arc:list" id="setsMode" toggles active="{{setsMode}}"></paper-icon-button>
+
+        <paper-tooltip for="copyButton" animation-delay="200">Copy headers value to clipboard</paper-tooltip>
+        <paper-tooltip for="editMode" animation-delay="200">Toggle source edit mode</paper-tooltip>
+        <paper-tooltip for="setsMode" animation-delay="200">Open headers sets list</paper-tooltip>
+      </div>
+      <iron-pages content selected="{{selected}}" on-iron-select="_tabChangedHandler" selected-attribute="active">
+        <headers-form-editor value="{{value}}" narrow="[[narrow]]"></headers-form-editor>
+        <code-mirror mode="http-headers" theme="cm-headers" value="{{value}}"></code-mirror>
+      </iron-pages>
+    </div>
+    <clipboard-copy content="[[value]]"></clipboard-copy>
+    <headers-support-authorization></headers-support-authorization>
+    <headers-support-content-type></headers-support-content-type>
+    <headers-support-cookie></headers-support-cookie>
+    <headers-support-wsse></headers-support-wsse>
+  </template>
+  <script>
+  Polymer({
+    is: 'headers-editor',
+
+    behaviors: [ArcBehaviors.HeadersParserBehavior],
+
+    /**
+     * Fired when the content type header has been set / updated.
+     *
+     * @event content-type-changed
+     * @param {String} value New Content type.
+     */
+    /**
+     * Fired when the editor value change
+     *
+     * @event request-headers-changed
+     * @param {String} value Current editor value.
+     */
+
+    properties: {
+      /**
+       * A HTTP headers message part as defined in HTTP spec.
+       *
+       * @type {String}
+       */
+      value: {
+        type: String,
+        notify: true
+      },
+      // Currently selected editor. Can be raw (CodeMirror) (0) or form editor (1).
+      selected: {
+        type: Number,
+        value: 0
+      },
+      /**
+       * Value of a Content-Type header.
+       * When this value change then editor update the value for the content type. However,
+       * to change a single header value, please, use `request-headers-changed` event with `name`
+       * and `value` properties set on the detail object.
+       *
+       * @type {Stirng}
+       */
+      contentType: {
+        type: String,
+        notify: true,
+        observer: '_onContentTypeChanged'
+      },
+      /**
+       * If set it will renders the view in the narrow layout.
+       */
+      narrow: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      // A widith below which the `narrow` property will be set to true.
+      narrowWidth: {
+        type: String,
+        value: '768px'
+      },
+      // When set to true then the source edit mode is enabled
+      sourceMode: {
+        type: Boolean,
+        observer: '_sourceModeChanged'
+      },
+      // When set then the headers sets edit mode is enabled
+      setsMode: {
+        type: Boolean,
+        observer: '_setsModeChanged'
+      }
+    },
+
+    observers: [
+      '_valueChanged(value)',
+      '_editorModeChanged(sourceMode, setsMode)'
+    ],
+
+    attached: function() {
+      this.listen(window, 'request-headers-changed', '_headersChangedHandler');
+      this.listen(window, 'request-header-changed', '_headerChangedHandler');
+    },
+
+    detached: function() {
+      this.unlisten(window, 'request-headers-changed', '_headersChangedHandler');
+      this.unlisten(window, 'request-header-changed', '_headerChangedHandler');
+    },
+    ready: function() {
+      var cm = this.$$('code-mirror');
+      cm.setOption('extraKeys', {
+        'Ctrl-Space': function(cm) {
+          CodeMirror.showHint(cm, CodeMirror.hint['http-headers'], {
+            container: Polymer.dom(this.root)
+          });
+        }.bind(this)
+      });
+    },
+
+    // Sets current view depends on the mode.
+    _editorModeChanged: function(sourceMode, setsMode) {
+      switch (true) {
+        case sourceMode: this.set('selected', 1); break;
+        case setsMode: this.set('selected', 2); break;
+        default: this.set('selected', 0);
+      }
+    },
+
+    _sourceModeChanged: function(state) {
+      if (state && this.setsMode) {
+        this.setsMode = false;
+      }
+    },
+
+    _setsModeChanged: function(state) {
+      if (state && this.sourceMode) {
+        this.sourceMode = false;
+      }
+    },
+
+    /**
+     * Called by CodeMirror editor.
+     * When something change n the headers list, detect content type header.
+     */
+    _valueChanged: function(value) {
+      this._detectContentType(value);
+      if (!this._cacncelChangeEvent) {
+        this.fire('request-headers-changed', {
+          value: value
+        });
+      }
+    },
+
+    _detectContentType: function(value) {
+      if (!value && this.contentType) {
+        this.set('contentType', null);
+        return;
+      }
+      if (!this.value) {
+        return;
+      }
+      var ct = this.getContentType(value);
+      if (!ct) {
+        return;
+      }
+      this.set('contentType', ct);
+    },
+
+    _onContentTypeChanged: function(currentCt) {
+      if (!currentCt) {
+        this.fire('content-type-changed', {
+          'value': ''
+        });
+        return;
+      }
+      var arr = this.headersToJSON(this.value);
+      var updated = false;
+      var notChanged = false; //True when values are equal, no change needed.
+      arr.map(function(item) {
+        if (updated || item.name.toLowerCase() !== 'content-type') {
+          return item;
+        }
+        updated = true;
+        if (item.value === currentCt) {
+          notChanged = true;
+          return item;
+        }
+        item.value = currentCt;
+        return item;
+      });
+      if (notChanged) {
+        return;
+      }
+      if (!updated) {
+        arr.push({
+          name: 'Content-Type',
+          value: currentCt
+        });
+      }
+      var headers = this.headersToString(arr);
+      this.set('value', headers);
+      this.fire('content-type-changed', {
+        'value': currentCt
+      });
+    },
+
+    _tabChangedHandler: function(e) {
+      var name = e.detail.item && e.detail.item.nodeName;
+      if (!name) {
+        return;
+      }
+      if (name === 'CODE-MIRROR') {
+        e.detail.item.editor.refresh();
+      }
+    },
+
+    /**
+     * Handler tor the `request-headers-changed` event.
+     * Updates the editor value to the value of the event detail object.
+     */
+    _headersChangedHandler: function(e) {
+      if (e.target === this) {
+        return;
+      }
+      if (e.defaultPrevented) {
+        return;
+      }
+      var value = e.detail.value;
+      this._cacncelChangeEvent = true;
+      this.set('value', value);
+      this._cacncelChangeEvent = false;
+    },
+    /**
+     * Handler for the `request-header-changed` event.
+     * It updates value for a single header.
+     */
+    _headerChangedHandler: function(e) {
+      if (e.defaultPrevented) {
+        return;
+      }
+      var name = e.detail.name;
+      if (!name) {
+        return console.warn('request-header-changed fired without the name.');
+      }
+      var value = e.detail.value;
+      var arr = this.headersToJSON(this.value);
+      var updated = false;
+      for (var i = 0, len = arr.length; i < len; i++) {
+        if (arr[i].name.toLowerCase() === name.toLowerCase()) {
+          arr[i].value = value;
+          updated = true;
+          break;
+        }
+      }
+      if (!updated) {
+        arr.push({
+          name: name,
+          value: value
+        });
+      }
+      var headers = this.headersToString(arr);
+      this._cacncelChangeEvent = true;
+      this.set('value', headers);
+      this._cacncelChangeEvent = false;
+    },
+
+    _copyToClipboard: function() {
+      var elm = this.$$('clipboard-copy');
+      if (elm.copy()) {
+        this.$.copyButton.icon = 'arc:done';
+        if (this.__copyButtonAsync) {
+          this.cancelAsync(this.__copyButtonAsync);
+        }
+        this.__copyButtonAsync = this.async(function() {
+          this.$.copyButton.icon = 'arc:content-copy';
+          this.__copyButtonAsync = undefined;
+        }, 1000);
+      } else {
+        this.$.copyButton.icon = 'arc:error';
+      }
+    }
+  });
+  </script>
+</dom-module>

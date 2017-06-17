@@ -30,14 +30,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global suite, test, fixture, assert */
+    /* global fixture, assert, TestHelpers */
     suite('basic', function() {
       var element;
       setup(function() {
         element = fixture('basic');
       });
-      test('`headers-editor` should be initialized', function() {
-        assert.equal(element.isAttached, true, 'element.isAttached equals true');
+      test('Setting sourceMode sets selected to 1', function() {
+        element.sourceMode = true;
+        assert.equal(element.selected, 1);
+      });
+      test('Setting sourceMode displays source editor', function() {
+        element.sourceMode = true;
+        TestHelpers.forceXIfStamp(element);
+        var sourceEditor = element.$$('code-mirror');
+        assert.ok(sourceEditor);
+        assert.isTrue(sourceEditor.hasAttribute('active'));
+      });
+      test('Setting setsMode sets selected to 2', function() {
+        element.setsMode = true;
+        assert.equal(element.selected, 2);
+      });
+      test('Setting setsMode displays sets selector', function() {
+        element.setsMode = true;
+        TestHelpers.forceXIfStamp(element);
+        var selector = element.$$('headers-sets-selector');
+        assert.ok(selector);
+        assert.isTrue(selector.hasAttribute('active'));
       });
     });
     </script>

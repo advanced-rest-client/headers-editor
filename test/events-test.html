@@ -1,0 +1,117 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../headers-editor.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <headers-editor></headers-editor>
+      </template>
+    </test-fixture>
+
+    <script>
+    function fire(name, detail, node) {
+      var event = new CustomEvent(name, {
+        bubbles: true,
+        composed: true,
+        detail: detail
+      });
+      (node || document).dispatchEvent(event);
+      return event;
+    }
+    /* global suite, test, fixture, assert, sinon */
+    suite('events', function() {
+      var element;
+      var headers = 'Accept: */*\nContent-Type: application/json\n';
+      headers += 'X-Token: abc\nx-test: test-value';
+
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Fires content-type-changed', function() {
+        var spy = sinon.stub();
+        element.addEventListener('content-type-changed', spy);
+        element.value = headers;
+        assert.isTrue(spy.calledOnce);
+      });
+
+      test('The content-type-changed has valid content-type', function(done) {
+        element.addEventListener('content-type-changed', function(e) {
+          assert.equal(e.detail.value, 'application/json');
+          done();
+        });
+        element.value = headers;
+      });
+
+      test('Fires request-headers-changed', function() {
+        var spy = sinon.stub();
+        element.addEventListener('request-headers-changed', spy);
+        element.value = headers;
+        assert.isTrue(spy.calledOnce);
+      });
+
+      test('The request-headers-changed has valid value', function(done) {
+        element.addEventListener('request-headers-changed', function(e) {
+          assert.equal(e.detail.value, headers);
+          done();
+        });
+        element.value = headers;
+      });
+
+      test('Accepts headers-set-selected event', function() {
+        fire('headers-set-selected', {
+          set: headers
+        }, element);
+        assert.equal(element.value, headers);
+      });
+
+      test('Accepts request-header-changed and appends header', function() {
+        fire('request-header-changed', {
+          value: 'test-value',
+          name: 'x-test'
+        });
+        assert.equal(element.value, 'x-test: test-value');
+      });
+
+      test('Accepts request-header-changed and replaces header', function() {
+        element.value = headers;
+        fire('request-header-changed', {
+          value: 'replaced-value',
+          name: 'x-test'
+        });
+        var compare = headers.replace('test-value', 'replaced-value');
+        assert.equal(element.value, compare);
+      });
+
+      test('Accepts request-is-payload-changed', function() {
+        fire('request-is-payload-changed', {
+          value: true
+        });
+        assert.isTrue(element.isPayload);
+      });
+    });
+    </script>
+
+  </body>
+</html>

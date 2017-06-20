@@ -156,14 +156,13 @@ Custom property | Description | Default
       /**
        * Value of a Content-Type header.
        * When this value change then editor update the value for the content type. However,
-       * to change a single header value, please, use `request-headers-changed` event with `name`
+       * to change a single header value, please, use `request-header-changed` event with `name`
        * and `value` properties set on the detail object.
        *
        * @type {Stirng}
        */
       contentType: {
         type: String,
-        notify: true,
         observer: '_onContentTypeChanged'
       },
       /**
@@ -206,12 +205,14 @@ Custom property | Description | Default
       this.listen(window, 'request-headers-changed', '_headersChangedHandler');
       this.listen(window, 'request-header-changed', '_headerChangedHandler');
       this.listen(window, 'request-is-payload-changed', '_isPayloadChangedHandler');
+      this.listen(window, 'content-type-changed', '_contentTypeHandler');
     },
 
     detached: function() {
       this.unlisten(window, 'request-headers-changed', '_headersChangedHandler');
       this.unlisten(window, 'request-header-changed', '_headerChangedHandler');
       this.unlisten(window, 'request-is-payload-changed', '_isPayloadChangedHandler');
+      this.unlisten(window, 'content-type-changed', '_contentTypeHandler');
     },
 
     ready: function() {
@@ -275,11 +276,26 @@ Custom property | Description | Default
       this.set('contentType', ct);
     },
 
+    _contentTypeHandler: function(e) {
+      if (Polymer.dom(e).rootTarget === this) {
+        return;
+      }
+      if (e.detail.value === this.contentType) {
+        return;
+      }
+      this.__cancelContentTypeChangeEvent = true;
+      this.set('contentType', e.detail.value);
+      this.__cancelContentTypeChangeEvent = false;
+    },
+
     _onContentTypeChanged: function(currentCt) {
-      if (!currentCt) {
+      if (!this.__cancelContentTypeChangeEvent) {
         this.fire('content-type-changed', {
-          'value': ''
+          'value': currentCt
         });
+      }
+
+      if (!currentCt) {
         return;
       }
       var arr = this.headersToJSON(this.value);
@@ -308,9 +324,6 @@ Custom property | Description | Default
       }
       var headers = this.headersToString(arr);
       this.set('value', headers);
-      this.fire('content-type-changed', {
-        'value': currentCt
-      });
     },
 
     _tabChangedHandler: function(e) {

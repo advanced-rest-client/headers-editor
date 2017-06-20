@@ -1,3 +1,17 @@
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/advanced-rest-client/headers-editor/compare/0.1.2...v0.1.3) (2017-06-20)
+
+
+### Fix
+
+* Fixed an issue with correctly handling the `content-type-changed` event. ([d1a302e76d5829446d525aa99011a9617e355270](https://github.com/advanced-rest-client/headers-editor/commit/d1a302e76d5829446d525aa99011a9617e355270))
+
+### Update
+
+* Removed sudo from travis configuration since it's unused here. ([fe3b49007eb3526113055d7f63679ba5cc546c34](https://github.com/advanced-rest-client/headers-editor/commit/fe3b49007eb3526113055d7f63679ba5cc546c34))
+
+
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://github.com/advanced-rest-client/headers-editor/compare/0.1.1...v0.1.2) (2017-06-17)
 

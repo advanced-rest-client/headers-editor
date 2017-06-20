@@ -26,6 +26,9 @@ the License.
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../headers-validator/headers-validator.html">
+<link rel="import" href="../bytes-counter/bytes-counter.html">
+<link rel="import" href="../headers-editor-status/headers-editor-status.html">
 <!-- CodeMirror autocomplete -->
 <link rel="import" href="../paper-material/paper-material.html">
 <link rel="import" href="../paper-menu/paper-menu.html">
@@ -112,7 +115,13 @@ Custom property | Description | Default
         <code-mirror mode="http-headers" theme="cm-headers" value="{{value}}"></code-mirror>
         <headers-sets-selector is-payload="[[isPayload]]"></headers-sets-selector>
       </iron-pages>
+      <template is="dom-if" if="[[displayStatus]]">
+        <headers-editor-status size="[[size]]" invalid="[[invalid]]" message="[[errorMessage]]"></headers-editor-status>
+      </template>
     </div>
+
+    <headers-validator headers="[[value]]" invalid="{{invalid}}" is-payload="[[isPayload]]" error-message="{{errorMessage}}"></headers-validator>
+    <bytes-counter value="[[headers]]" bytes="{{size}}"></bytes-counter>
     <clipboard-copy content="[[value]]"></clipboard-copy>
     <headers-support-authorization></headers-support-authorization>
     <headers-support-content-type></headers-support-content-type>
@@ -189,7 +198,26 @@ Custom property | Description | Default
         observer: '_setsModeChanged'
       },
       // Set to `true` if current request can carry a payload.
-      isPayload: Boolean
+      isPayload: Boolean,
+      // Set to true when the validator reports an invalid value.
+      invalid: Boolean,
+      /**
+       * Message to display to the user when the validator reports an invalid
+       * value for the headers.
+       */
+      errorMessage: String,
+      // Computed size in bytes of the headers input.
+      size: Number,
+      /**
+       * Determines if the status bar should be displayed.
+       * This value is computed at runtime depending on currently displayed
+       * view.
+       */
+      displayStatus: {
+        type: Boolean,
+        value: true,
+        computed: '_computeDisplayStatus(selected)'
+      }
     },
 
     observers: [
@@ -426,6 +454,10 @@ Custom property | Description | Default
       headers += e.detail.set;
       this.set('value', headers);
       this.setsMode = false;
+    },
+
+    _computeDisplayStatus: function(selected) {
+      return selected !== 2;
     }
   });
   </script>

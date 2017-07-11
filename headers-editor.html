@@ -205,6 +205,17 @@ Custom property | Description | Default
       'headers-set-selected': '_onSetSelected'
     },
 
+    attributeChanged: function(name) {
+      if (!name || !this.sourceMode || name !== 'opened') {
+        return;
+      }
+      var value = this.getAttribute(name);
+      if (value === null) {
+        return;
+      }
+      this.$$('code-mirror').editor.refresh();
+    },
+
     _attachListeners: function(node) {
       this.listen(node, 'request-headers-changed', '_headersChangedHandler');
       this.listen(node, 'request-header-changed', '_headerChangedHandler');

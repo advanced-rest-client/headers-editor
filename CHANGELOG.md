@@ -1,3 +1,17 @@
+<a name="0.1.5"></a>
+## [0.1.5](https://github.com/advanced-rest-client/headers-editor/compare/0.1.4...v0.1.5) (2017-07-11)
+
+
+### New
+
+* Added code mirror refresh handler when the `opened` attribute is set on the element. ([c9a72e825a5c00aeb082fbc20c4c259451d43a02](https://github.com/advanced-rest-client/headers-editor/commit/c9a72e825a5c00aeb082fbc20c4c259451d43a02))
+
+### Update
+
+* Added EventsTargetBehavior to the element. ([21bf5aa74f23e3391941d071608737a054f06378](https://github.com/advanced-rest-client/headers-editor/commit/21bf5aa74f23e3391941d071608737a054f06378))
+
+
+
 <a name="0.1.4"></a>
 ## [0.1.4](https://github.com/advanced-rest-client/headers-editor/compare/0.1.3...v0.1.4) (2017-06-20)
 

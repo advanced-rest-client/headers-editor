@@ -1,3 +1,13 @@
+<a name="0.1.7"></a>
+## [0.1.7](https://github.com/advanced-rest-client/headers-editor/compare/0.1.6...v0.1.7) (2017-07-12)
+
+
+### New
+
+* Added status bar and validator. ([15716e0d8ef1e733370555cb4d68960fa75c880c](https://github.com/advanced-rest-client/headers-editor/commit/15716e0d8ef1e733370555cb4d68960fa75c880c))
+
+
+
 <a name="0.1.6"></a>
 ## [0.1.6](https://github.com/advanced-rest-client/headers-editor/compare/0.1.5...v0.1.6) (2017-07-11)
 

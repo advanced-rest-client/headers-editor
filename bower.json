@@ -1,7 +1,7 @@
 {
   "name": "headers-editor",
   "description": "Headers editor for the HTTP request editor panel",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
@@ -36,7 +36,11 @@
     "clipboard-copy": "advanced-rest-client/clipboard-copy#^0.1.1",
     "paper-button": "PolymerElements/paper-button#^1.0.0",
     "headers-sets-selector": "advanced-rest-client/headers-sets-selector#^0.1.1",
-    "events-target-behavior": "advanced-rest-client/events-target-behavior#^0.1.1"
+    "events-target-behavior": "advanced-rest-client/events-target-behavior#^0.1.1",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#<2",
+    "headers-validator": "advanced-rest-client/headers-validator",
+    "headers-editor-status": "advanced-rest-client/headers-editor-status#^0.1.1",
+    "bytes-counter": "advanced-rest-client/bytes-counter#^0.1.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",

@@ -16,7 +16,6 @@ the License.
 <link rel="import" href="../clipboard-copy/clipboard-copy.html">
 <link rel="import" href="../code-mirror/code-mirror.html">
 <link rel="import" href="../headers-parser-behavior/headers-parser-behavior.html">
-<link rel="import" href="../headers-parser-behavior/headers-parser-behavior.html">
 <link rel="import" href="../headers-form-editor/headers-form-editor.html">
 <link rel="import" href="../headers-editor-code-mirror/cm-modules-import.html">
 <link rel="import" href="../headers-support/headers-support.html">
@@ -24,9 +23,11 @@ the License.
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../events-target-behavior/events-target-behavior.html">
+<link rel="import" href="../headers-editor-status/headers-editor-status.html">
+<link rel="import" href="../headers-validator/headers-validator.html">
+<link rel="import" href="../bytes-counter/bytes-counter.html">
 <!-- CodeMirror autocomplete -->
 <link rel="import" href="../paper-material/paper-material.html">
 <link rel="import" href="../paper-menu/paper-menu.html">
@@ -65,10 +66,7 @@ Custom property | Description | Default
 
       --code-mirror-editor: {
         z-index: 0;
-      };
-
-      --paper-autocomplete: {
-        top: 32px;
+        position: relative;
       };
     }
 
@@ -79,12 +77,15 @@ Custom property | Description | Default
       overflow: hidden;
       overflow-y: auto;
       max-height: 20em;
-      margin-left: 20px;
+      margin-left: 0px;
+      margin-top: 44px;
     }
 
     .editor-actions {
       padding: 0 8px;
-      @apply(--body-editor-actions-container);
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      @apply --body-editor-actions-container;
     }
 
     #copyContainer {
@@ -97,28 +98,50 @@ Custom property | Description | Default
       border-radius: 50%;
       @apply(--body-editor-panel-button);
     }
+
+    .actions-separator {
+      @apply --layout-flex;
+    }
+
+    headers-editor-status {
+      border-top: 1px var(-headers-editor-status-border-color, #00a2df) solid;
+      padding-top: 8px;
+    }
+
+    .editor-actions paper-icon-button {
+      color: var(--content-action-button-color, rgba(0, 0, 0, 0.74));
+      transition: color 0.2s linear;
+    }
+
+    .editor-actions paper-icon-button:hover {
+      color: var(--content-action-button-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
+    }
     </style>
     <div class="content">
       <div class="editor-actions">
         <paper-icon-button icon="arc:content-copy" id="copyButton" on-tap="_copyToClipboard"></paper-icon-button>
         <paper-icon-button icon="arc:code" id="editMode" toggles active="{{sourceMode}}"></paper-icon-button>
-        <paper-icon-button icon="arc:list" id="setsMode" toggles active="{{setsMode}}"></paper-icon-button>
+        <span class="actions-separator"></span>
+        <paper-toggle-button id="setsMode" checked="{{setsMode}}">Headers sets</paper-toggle-button>
 
         <paper-tooltip for="copyButton" animation-delay="200">Copy headers value to clipboard</paper-tooltip>
         <paper-tooltip for="editMode" animation-delay="200">Toggle source edit mode</paper-tooltip>
         <paper-tooltip for="setsMode" animation-delay="200">Open headers sets list</paper-tooltip>
       </div>
       <iron-pages content selected="{{selected}}" on-iron-select="_tabChangedHandler" selected-attribute="active">
-        <headers-form-editor value="{{value}}" narrow="[[narrow]]"></headers-form-editor>
+        <headers-form-editor value="{{value}}" narrow="[[narrow]]" events-target="[[eventsTarget]]"></headers-form-editor>
         <code-mirror mode="http-headers" theme="cm-headers" value="{{value}}"></code-mirror>
         <headers-sets-selector is-payload="[[isPayload]]"></headers-sets-selector>
       </iron-pages>
+      <headers-editor-status size="[[size]]" invalid="[[invalid]]" message="[[errorMessage]]"></headers-editor-status>
     </div>
     <clipboard-copy content="[[value]]"></clipboard-copy>
     <headers-support-authorization></headers-support-authorization>
     <headers-support-content-type></headers-support-content-type>
     <headers-support-cookie></headers-support-cookie>
     <headers-support-wsse></headers-support-wsse>
+    <headers-validator headers="[[value]]" invalid="{{invalid}}" error-message="{{errorMessage}}" is-payload="[[isPayload]]"></headers-validator>
+    <bytes-counter value="[[value]]" bytes="{{size}}"></bytes-counter>
   </template>
   <script>
   Polymer({
@@ -193,7 +216,18 @@ Custom property | Description | Default
         observer: '_setsModeChanged'
       },
       // Set to `true` if current request can carry a payload.
-      isPayload: Boolean
+      isPayload: Boolean,
+      /**
+       * Set to tru if the input contains errors.
+       */
+      invalid: {
+        type: Boolean,
+        value: false
+      },
+      // Error message to diplay when the headers are not valid.
+      errorMessage: String,
+      // Size of the headers in bytes
+      size: Number
     },
 
     observers: [

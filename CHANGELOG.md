@@ -1,3 +1,13 @@
+<a name="0.1.9"></a>
+## [0.1.9](https://github.com/advanced-rest-client/headers-editor/compare/0.1.8...0.1.9) (2017-08-28)
+
+
+### Update
+
+* Added default value for headers size ([2c92b7d44105d5f01127deecc5a5c2b1e45f4337](https://github.com/advanced-rest-client/headers-editor/commit/2c92b7d44105d5f01127deecc5a5c2b1e45f4337))
+
+
+
 <a name="0.1.8"></a>
 ## [0.1.8](https://github.com/advanced-rest-client/headers-editor/compare/0.1.7...v0.1.8) (2017-07-12)
 

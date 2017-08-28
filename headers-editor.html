@@ -227,7 +227,10 @@ Custom property | Description | Default
       // Error message to diplay when the headers are not valid.
       errorMessage: String,
       // Size of the headers in bytes
-      size: Number
+      size: {
+        type: Number,
+        value: 0
+      }
     },
 
     observers: [

@@ -136,10 +136,10 @@ Custom property | Description | Default
       <headers-editor-status size="[[size]]" invalid="[[invalid]]" message="[[errorMessage]]"></headers-editor-status>
     </div>
     <clipboard-copy content="[[value]]"></clipboard-copy>
-    <headers-support-authorization></headers-support-authorization>
-    <headers-support-content-type></headers-support-content-type>
-    <headers-support-cookie></headers-support-cookie>
-    <headers-support-wsse></headers-support-wsse>
+    <headers-support-authorization events-target="[[eventsTarget]]"></headers-support-authorization>
+    <headers-support-content-type events-target="[[eventsTarget]]"></headers-support-content-type>
+    <headers-support-cookie events-target="[[eventsTarget]]"></headers-support-cookie>
+    <headers-support-wsse events-target="[[eventsTarget]]"></headers-support-wsse>
     <headers-validator headers="[[value]]" invalid="{{invalid}}" error-message="{{errorMessage}}" is-payload="[[isPayload]]"></headers-validator>
     <bytes-counter value="[[value]]" bytes="{{size}}"></bytes-counter>
   </template>

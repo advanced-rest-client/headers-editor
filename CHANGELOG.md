@@ -1,3 +1,16 @@
+<a name="0.1.11"></a>
+## [0.1.11](https://github.com/advanced-rest-client/headers-editor/compare/0.1.9...0.1.11) (2017-11-16)
+
+
+### Update
+
+* Added event target property to the headers support. ([6f83748c20d3128cd23baf3da28b6e1fe71d7614](https://github.com/advanced-rest-client/headers-editor/commit/6f83748c20d3128cd23baf3da28b6e1fe71d7614))
+* Removing lint command from tests until polymer linter is fixed ([b866624c054ac0bbcac890dcba348162c0182683](https://github.com/advanced-rest-client/headers-editor/commit/b866624c054ac0bbcac890dcba348162c0182683))
+* Updated headers support version ([bce08425aac60a0d028cb888171c6c0c64f98da5](https://github.com/advanced-rest-client/headers-editor/commit/bce08425aac60a0d028cb888171c6c0c64f98da5))
+* Updated tests for new system. ([99f4a962d67a0c3dda09d896895b59ff03c326cb](https://github.com/advanced-rest-client/headers-editor/commit/99f4a962d67a0c3dda09d896895b59ff03c326cb))
+
+
+
 <a name="0.1.10"></a>
 ## [0.1.10](https://github.com/advanced-rest-client/headers-editor/compare/0.1.9...0.1.10) (2017-08-28)
 

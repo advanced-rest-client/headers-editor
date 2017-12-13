@@ -1,3 +1,14 @@
+<a name="0.1.12"></a>
+## [0.1.12](https://github.com/advanced-rest-client/headers-editor/compare/0.1.11...0.1.12) (2017-12-13)
+
+
+### Update
+
+* Added labels to icons, changed headers set icon and label ([0a5941240b36caa1a8f51e37fe738891443249bf](https://github.com/advanced-rest-client/headers-editor/commit/0a5941240b36caa1a8f51e37fe738891443249bf))
+* Updated tests configuration for IE11 ([ff2550bd13eb1038572df711260dd87a2d3b55d7](https://github.com/advanced-rest-client/headers-editor/commit/ff2550bd13eb1038572df711260dd87a2d3b55d7))
+
+
+
 <a name="0.1.11"></a>
 ## [0.1.11](https://github.com/advanced-rest-client/headers-editor/compare/0.1.9...0.1.11) (2017-11-16)
 

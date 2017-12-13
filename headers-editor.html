@@ -28,6 +28,7 @@ the License.
 <link rel="import" href="../headers-editor-status/headers-editor-status.html">
 <link rel="import" href="../headers-validator/headers-validator.html">
 <link rel="import" href="../bytes-counter/bytes-counter.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
 <!-- CodeMirror autocomplete -->
 <link rel="import" href="../paper-material/paper-material.html">
 <link rel="import" href="../paper-menu/paper-menu.html">
@@ -62,7 +63,7 @@ Custom property | Description | Default
       display: block;
       position: relative;
 
-      @apply(--headers-editor);
+      @apply --headers-editor;
 
       --code-mirror-editor: {
         z-index: 0;
@@ -96,7 +97,7 @@ Custom property | Description | Default
     paper-icon-button[active] {
       background-color: var(--body-editor-panel-button-active, #e0e0e0);
       border-radius: 50%;
-      @apply(--body-editor-panel-button);
+      @apply --body-editor-panel-button;
     }
 
     .actions-separator {
@@ -116,17 +117,42 @@ Custom property | Description | Default
     .editor-actions paper-icon-button:hover {
       color: var(--content-action-button-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
     }
+
+    .icon-with-label {
+      cursor: pointer;
+      display: inline-block;
+      position: relative;
+      transition: color 0.2s linear;
+      color: var(--content-action-button-color, rgba(0, 0, 0, 0.74));
+      @apply --headers-editor-action-icon-label;
+    }
+
+    .icon-with-label:hover,
+    .editor-actions .icon-with-label:hover paper-icon-button {
+      color: var(--content-action-button-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
+    }
+
+    .icon-with-label {
+      margin-right: 8px;
+    }
     </style>
     <div class="content">
       <div class="editor-actions">
-        <paper-icon-button icon="arc:content-copy" id="copyButton" on-tap="_copyToClipboard"></paper-icon-button>
-        <paper-icon-button icon="arc:code" id="editMode" toggles active="{{sourceMode}}"></paper-icon-button>
-        <span class="actions-separator"></span>
-        <paper-toggle-button id="setsMode" checked="{{setsMode}}">Headers sets</paper-toggle-button>
+        <div>
+          <paper-icon-button icon="arc:content-copy" id="copyButton" on-tap="_copyToClipboard"></paper-icon-button>
+          <paper-tooltip for="copyButton" animation-delay="200">Copy headers value to clipboard</paper-tooltip>
+        </div>
 
-        <paper-tooltip for="copyButton" animation-delay="200">Copy headers value to clipboard</paper-tooltip>
-        <paper-tooltip for="editMode" animation-delay="200">Toggle source edit mode</paper-tooltip>
-        <paper-tooltip for="setsMode" animation-delay="200">Open headers sets list</paper-tooltip>
+        <div class="icon-with-label">
+          <paper-icon-button icon="arc:code" id="editMode" toggles active="{{sourceMode}}"></paper-icon-button>
+          <paper-tooltip for="editMode" animation-delay="200">Toggle source mode</paper-tooltip>
+          <span class="icon-label" on-tap="toggleSourceMode">Toggle source mode</span>
+        </div>
+
+        <div class="icon-with-label">
+          <paper-icon-button icon="arc:add" id="editMode" toggles active="{{setsMode}}"></paper-icon-button>
+          <span class="icon-label" on-tap="toggleHeadersSets">Insert headers set</span>
+        </div>
       </div>
       <iron-pages content selected="{{selected}}" on-iron-select="_tabChangedHandler" selected-attribute="active">
         <headers-form-editor value="{{value}}" narrow="[[narrow]]" events-target="[[eventsTarget]]"></headers-form-editor>
@@ -478,6 +504,18 @@ Custom property | Description | Default
       headers += e.detail.set;
       this.set('value', headers);
       this.setsMode = false;
+    },
+    /**
+     * Toggles visibility of the headers set editor
+     */
+    toggleHeadersSets: function() {
+      this.setsMode = !this.setsMode;
+    },
+    /**
+     * Toggles visibility of source edit mode.
+     */
+    toggleSourceMode: function() {
+      this.sourceMode = !this.sourceMode;
     }
   });
   </script>
